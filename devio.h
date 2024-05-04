@@ -105,6 +105,7 @@ typedef struct IO_Config {
 
 typedef struct IO_Device {
     char *name;
+    int reference;
     IO_ListType driverList;
     IO_ListType systemList;
     struct IO_Driver *driver;
@@ -322,6 +323,8 @@ static inline void IO_InitDevice(IO_DeviceType *device, char *name, unsigned lon
      * 默认没有挂载设备
      */
     device->attachedDevice = NULL;
+
+    device->reference = 0;
 }
 
 static inline IO_DeviceType *IO_CreateDevice(char *name, unsigned long extensionSize)
@@ -456,33 +459,44 @@ IO_API static inline int IO_OpenDevice(char *name, int flags, IO_DeviceType **de
      * 无需调用设备的打开函数
      */
     if (!driver->function[IO_DISPATCH_OPEN]) {
+        device->reference++;
         *deviceOut = device;
         return 0;
     }
 
-    req = IO_CreateReq(device->stackSize);
-    if (!req)
-        return -1;
-
     /**
-     * 设置栈信息
+     * 第一次打开时才真正调用
      */
-    stack = IO_GetNextReqStackLocation(req);
-    stack->function = IO_DISPATCH_OPEN;
-    stack->args.open.flags = flags;
+    if (device->reference == 0) {
 
-    ret = IO_CallDriver(device, req);
+        req = IO_CreateReq(device->stackSize);
+        if (!req)
+            return -1;
 
-    /**
-     * 没有完成传输，返回错误
-     */
-    if ((req->flags & IO_REQ_FINISHED) != IO_REQ_FINISHED) {
-        ret = -1;
-    }
+        /**
+         * 设置栈信息
+         */
+        stack = IO_GetNextReqStackLocation(req);
+        stack->function = IO_DISPATCH_OPEN;
+        stack->args.open.flags = flags;
 
-    IO_DestroyReq(req);
+        ret = IO_CallDriver(device, req);
 
-    if (ret >= 0) {
+        /**
+         * 没有完成传输，返回错误
+         */
+        if ((req->flags & IO_REQ_FINISHED) != IO_REQ_FINISHED) {
+            ret = -1;
+        }
+
+        IO_DestroyReq(req);
+
+        if (ret >= 0) {
+            device->reference++;
+            *deviceOut = device;
+        }
+    } else {
+        device->reference++;
         *deviceOut = device;
     }
 
@@ -657,34 +671,52 @@ IO_API static inline int IO_CloseDevice(IO_DeviceType *device)
     }
 
     driver = device->driver;
+
+    /**
+     * 设备没有被打开，不能关闭
+     */
+    if (device->reference == 0) {
+        return -1;
+    }
+
     /**
      * 无需调用设备的功能
      */
     if (!driver->function[IO_DISPATCH_CLOSE]) {
+        device->reference--;
         return 0;
     }
 
-    req = IO_CreateReq(device->stackSize);
-    if (!req)
-        return -1;
-
     /**
-     * 设置栈信息
+     * 最后一次关闭时才调用关闭
      */
-    stack = IO_GetNextReqStackLocation(req);
-    stack->function = IO_DISPATCH_CLOSE;
+    if (device->reference == 1) {
+        req = IO_CreateReq(device->stackSize);
+        if (!req)
+            return -1;
 
-    ret = IO_CallDriver(device, req);
+        /**
+         * 设置栈信息
+         */
+        stack = IO_GetNextReqStackLocation(req);
+        stack->function = IO_DISPATCH_CLOSE;
 
-    status = req->status;
-    /**
-     * 没有完成传输，返回错误
-     */
-    if ((req->flags & IO_REQ_FINISHED) != IO_REQ_FINISHED) {
-        ret = -1;
+        ret = IO_CallDriver(device, req);
+
+        status = req->status;
+        /**
+         * 没有完成传输，返回错误
+         */
+        if ((req->flags & IO_REQ_FINISHED) != IO_REQ_FINISHED) {
+            ret = -1;
+        }
+
+        IO_DestroyReq(req);
+
+        device->reference--;
+    } else {
+        device->reference--;
     }
-
-    IO_DestroyReq(req);
 
     return ret;
 }

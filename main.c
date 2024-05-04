@@ -42,6 +42,26 @@ int main(int argc, char *argv[])
 
     IO_CloseDevice(dev);
 
+    IO_DeviceType *dev1, *dev2;
+    if (IO_OpenDevice("ramdisk0", 0, &dev1)) {
+        printf("[BAD] IO_OpenDevice\n");
+    } else {
+        printf("[OK] IO_OpenDevice\n");
+    }
+    if (IO_OpenDevice("ramdisk0", 0, &dev2)) {
+        printf("[BAD] IO_OpenDevice\n");
+    } else {
+        printf("[OK] IO_OpenDevice\n");
+    }
+    ret = IO_CloseDevice(dev2);
+    printf("IO_CloseDevice: %d\n", ret);
+    
+    ret = IO_CloseDevice(dev1);
+    printf("IO_CloseDevice: %d\n", ret);
+
+    ret = IO_CloseDevice(dev1);
+    printf("IO_CloseDevice: %d\n", ret);
+
 #if 0
     if (IO_OpenDevice("nand0", 0, &dev)) {
         printf("[BAD] IO_OpenDevice\n");

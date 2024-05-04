@@ -12,6 +12,15 @@ struct RamdiskExt {
 
 static int Ramdisk_Open(IO_DeviceType *device, IO_ReqType *req)
 {
+    printf("ramdisk open\n");
+    /* 打开Ramdisk，使能打开Ramdisk的中断，使能操作等 */
+    IO_FinishReq(req);
+    return 0;
+}
+
+static int Ramdisk_Close(IO_DeviceType *device, IO_ReqType *req)
+{
+    printf("ramdisk close\n");
     /* 打开Ramdisk，使能打开Ramdisk的中断，使能操作等 */
     IO_FinishReq(req);
     return 0;
@@ -97,6 +106,7 @@ int Ramdisk_Init(void)
     RamdiskDriver = IO_CreateDriver("Ramdisk drviver");
 
     RamdiskDriver->function[IO_DISPATCH_OPEN] = Ramdisk_Open;
+    RamdiskDriver->function[IO_DISPATCH_CLOSE] = Ramdisk_Close;
     RamdiskDriver->function[IO_DISPATCH_WRITE] = Ramdisk_Write;
     RamdiskDriver->function[IO_DISPATCH_READ] = Ramdisk_Read;
     RamdiskDriver->function[IO_DISPATCH_CONTROL] = Ramdisk_Control;
