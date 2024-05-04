@@ -86,7 +86,9 @@ static inline int IO_ListEmpty(const IO_ListType *head)
 
 static inline void *IO_Malloc(size_t size)
 {
-    return malloc(size);
+    void *ptr = malloc(size);
+    memset(ptr, 0, size);
+    return ptr;
 }
 
 static inline void IO_Free(void *ptr)
@@ -224,6 +226,9 @@ static inline IO_ReqType *IO_CreateReq(char stackSize)
 
 static inline void IO_DestroyReq(IO_ReqType *req)
 {
+    if (!req) {
+        return;
+    }
     IO_Free(req);
 }
 
@@ -295,12 +300,20 @@ static inline int IO_AttachDriver(IO_DriverType *driver)
     return 0;
 }
 
-static inline void IO_InitDevice(IO_DeviceType *device, char *name)
+static inline void IO_InitDevice(IO_DeviceType *device, char *name, unsigned long extensionSize)
 {
     device->name = name;
     IO_InitList(&device->driverList);
     IO_InitList(&device->systemList);
+
     device->extension = NULL;
+    if (extensionSize) {
+        /**
+         * 扩展内存在设备结构体后面
+         */
+        device->extension = (void *)(device + 1);
+    }
+
     /**
      * 默认没有设备栈
      */
@@ -311,14 +324,14 @@ static inline void IO_InitDevice(IO_DeviceType *device, char *name)
     device->attachedDevice = NULL;
 }
 
-static inline IO_DeviceType *IO_CreateDevice(char *name)
+static inline IO_DeviceType *IO_CreateDevice(char *name, unsigned long extensionSize)
 {
     IO_DeviceType *device;
-    device = IO_Malloc(sizeof(IO_DeviceType));
+    device = IO_Malloc(sizeof(IO_DeviceType) + extensionSize);
     if (!device) {
         return device;
     }
-    IO_InitDevice(device, name);
+    IO_InitDevice(device, name, extensionSize);
     return device;
 }
 

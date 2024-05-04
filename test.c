@@ -52,10 +52,10 @@ int SPI_Init(void)
 
     IO_AttachDriver(spiBusDriver);
 
-    IO_DeviceType *spiDev = IO_CreateDevice("spi0");
+    IO_DeviceType *spiDev = IO_CreateDevice("spi0", 0);
     IO_AttachDevice(spiDev, spiBusDriver);
 
-    spiDev = IO_CreateDevice("spi1");
+    spiDev = IO_CreateDevice("spi1", 0);
     IO_AttachDevice(spiDev, spiBusDriver);
 
     return 0;
@@ -174,7 +174,7 @@ int FLASH_Init(void)
 
     IO_AttachDriver(flashDriver);
 
-    IO_DeviceType *nandDev = IO_CreateDevice("nand0");
+    IO_DeviceType *nandDev = IO_CreateDevice("nand0", 0);
     IO_AttachDevice(nandDev, flashDriver);
 
     IO_DeviceType *spiDev;
@@ -192,7 +192,7 @@ int FLASH_Init(void)
     IO_DumpDeviceStack(nandDev);
 
 
-    nandDev = IO_CreateDevice("nand1");
+    nandDev = IO_CreateDevice("nand1", 0);
     IO_AttachDevice(nandDev, flashDriver);
 
     spiDev;
