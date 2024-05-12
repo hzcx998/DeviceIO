@@ -94,6 +94,36 @@ static int Ramdisk_Control(IO_DeviceType *device, IO_ReqType *req)
     return 0;
 }
 
+static int ProbeDevice(struct IO_Driver *driver, IO_DeviceNodeType *node)
+{
+    printf(">>>>>>>>\nramdisk probe: %s, id: %d\n", IO_GetNodeName(node), IO_GetNodeID(node));
+    printf("get bool: %d\n", IO_GetNodeBool(node, "EnableFaseIO", 0));
+    printf("get string: %s\n", IO_GetNodeString(node, "status", "enabled"));
+
+    IO_DeviceType *ramDev = IO_CreateDevice("ramdisk0", sizeof(struct RamdiskExt));
+    IO_AttachDevice(ramDev, driver);
+
+    struct RamdiskExt *ext = (struct RamdiskExt *)ramDev->extension;
+    ext->ram = IO_Malloc(RAMDISK_SIZE);
+    memset(ext->ram, 0, RAMDISK_SIZE);
+    ext->ramSize = RAMDISK_SIZE;
+    ext->blockSize = 512;
+
+    printf("create ramdisk0 device at %p size %d\n", ext->ram, ext->ramSize);
+
+    return 0;
+}
+
+static int RemoveDevice(struct IO_Device *device)
+{
+    return 0;
+}
+
+static IO_CompatibleType RamdiskCompatible[] = {
+    {"virt,ramdisk", NULL},
+    {NULL, NULL},
+};
+
 /**
  * Ramdisk device driver
  */
@@ -111,18 +141,11 @@ int Ramdisk_Init(void)
     RamdiskDriver->function[IO_DISPATCH_READ] = Ramdisk_Read;
     RamdiskDriver->function[IO_DISPATCH_CONTROL] = Ramdisk_Control;
 
+    RamdiskDriver->compatible = RamdiskCompatible;
+    RamdiskDriver->probeDevice = ProbeDevice;
+    RamdiskDriver->removeDevice = RemoveDevice;
+
     IO_AttachDriver(RamdiskDriver);
-
-    IO_DeviceType *ramDev = IO_CreateDevice("ramdisk0", sizeof(struct RamdiskExt));
-    IO_AttachDevice(ramDev, RamdiskDriver);
-
-    struct RamdiskExt *ext = (struct RamdiskExt *)ramDev->extension;
-    ext->ram = IO_Malloc(RAMDISK_SIZE);
-    memset(ext->ram, 0, RAMDISK_SIZE);
-    ext->ramSize = RAMDISK_SIZE;
-    ext->blockSize = 512;
-
-    printf("init ramdisk device at %p size %d\n", ext->ram, ext->ramSize);
 
     return 0;
 }

@@ -6,6 +6,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include <devtree.h>
+
 #define IO_API
 
 struct IO_Driver;
@@ -269,8 +271,11 @@ typedef struct IO_Driver {
     IO_ListType deviceHead;
     IO_ListType systemList;
     IO_DirectDispatchType directIO;
+    IO_CompatibleType *compatible;
     IO_DispatchType function[IO_DISPATCH_MAX_NR];
     void *extension;
+    IO_DeviceType *(*probeDevice)(struct IO_Driver *driver, IO_DeviceNodeType *node);
+    int (*removeDevice)(struct IO_Device *device);
 } IO_DriverType;
 
 extern IO_ListType DriverListHead;
@@ -282,6 +287,7 @@ static inline void IO_InitDriver(IO_DriverType *driver, char *name)
     IO_InitList(&driver->deviceHead);
     IO_InitList(&driver->systemList);
     driver->extension = NULL;
+    driver->compatible = NULL;
 }
 
 static inline IO_DriverType *IO_CreateDriver(char *name)
@@ -408,6 +414,42 @@ static inline int IO_DumpDeviceStack(IO_DeviceType *device)
     }
 
     return 0;
+}
+
+static inline int IO_GetDriverByName(char *name, IO_DriverType **driverAddress)
+{
+    IO_DriverType *driver;
+    int err = -1;
+    IO_ListForEachEntry(driver, &DriverListHead, systemList) {
+        if (!strcmp(driver->name, name)) {
+            err = 0;
+            *driverAddress = driver;
+            break;
+        }
+    }
+    return err;
+}
+
+static inline int IO_GetDriverByCompitable(char *name, IO_DriverType **driverAddress)
+{
+    IO_DriverType *driver;
+    int err = -1;
+    IO_CompatibleType *compatible;
+
+    IO_ListForEachEntry(driver, &DriverListHead, systemList) {
+        if (driver->compatible != NULL) {
+            compatible = driver->compatible;
+            while (compatible->name != NULL) {
+                /* 匹配比较表 */
+                if (!strcmp(compatible->name, name)) {
+                    *driverAddress = driver;
+                    return 0;
+                }
+                compatible++;
+            }
+        }
+    }
+    return err;
 }
 
 static inline int IO_GetDeviceByName(char *name, IO_DeviceType **deviceAddress)
