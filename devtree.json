@@ -34,6 +34,10 @@
             "0x800",
             "0x200"
         ],
+        "reg2" : [
+            100,
+            200
+        ],
         "status": "enabled",
         "EnableFaseIO" : true
     }

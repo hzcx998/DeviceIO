@@ -99,6 +99,25 @@ static int ProbeDevice(struct IO_Driver *driver, IO_DeviceNodeType *node)
     printf(">>>>>>>>\nramdisk probe: %s, id: %d\n", IO_GetNodeName(node), IO_GetNodeID(node));
     printf("get bool: %d\n", IO_GetNodeBool(node, "EnableFaseIO", 0));
     printf("get string: %s\n", IO_GetNodeString(node, "status", "enabled"));
+    printf("get reg: %d\n", IO_GetNodeArrayLength(node, "reg"));
+
+    printf("get reg[0]: %s\n", IO_GetNodeArraString(node, "reg", 0, "0x00"));
+    printf("get reg[1]: %s\n", IO_GetNodeArraString(node, "reg", 1, "0x00"));
+
+    printf("get reg[0]: %p\n", IO_GetNodeArraHex(node, "reg", 0, 0x00));
+    printf("get reg[1]: %p\n", IO_GetNodeArraHex(node, "reg", 1, 0x00));
+
+    printf("get reg[0]: %p\n", IO_GetNodeArrayU8(node, "reg2", 0, 0x00));
+    printf("get reg[1]: %p\n", IO_GetNodeArrayU8(node, "reg2", 1, 0x00));
+
+    printf("get reg[0]: %p\n", IO_GetNodeArrayU16(node, "reg2", 0, 0x00));
+    printf("get reg[1]: %p\n", IO_GetNodeArrayU16(node, "reg2", 1, 0x00));
+
+    printf("get reg[0]: %p\n", IO_GetNodeArrayU32(node, "reg2", 0, 0x00));
+    printf("get reg[1]: %p\n", IO_GetNodeArrayU32(node, "reg2", 1, 0x00));
+
+    printf("get reg[0]: %p\n", IO_GetNodeArrayU64(node, "reg2", 0, 0x00));
+    printf("get reg[1]: %p\n", IO_GetNodeArrayU64(node, "reg2", 1, 0x00));
 
     IO_DeviceType *ramDev = IO_CreateDevice("ramdisk0", sizeof(struct RamdiskExt));
     IO_AttachDevice(ramDev, driver);
