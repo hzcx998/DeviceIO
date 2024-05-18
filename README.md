@@ -7,6 +7,7 @@ DeviceIO是一个驱动框架，用于封装嵌入式HAL驱动，为上层应用
 本程序使用xmake进行编译，也可以使用其它方式，毕竟只有少数文件。
 
 ```bash
+cd apps/linux/test
 xmake && xmake run
 ```
 
