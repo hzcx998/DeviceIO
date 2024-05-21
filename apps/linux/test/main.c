@@ -18,8 +18,10 @@ int main(int argc, char *argv[])
 {
     printf("hello, DeviceIO!\n");
 
+    char *buf = IO_LoadDeviceTree("devtree.json");
     /* 初始化IO系统 */
-    IO_InitSystem(AttachAllModule);
+    IO_InitSystem(AttachAllModule, buf);
+    IO_Free(buf);
 
     /**
      * 操作设备
@@ -32,35 +34,43 @@ int main(int argc, char *argv[])
         printf("[BAD] IO_OpenDevice\n");
     } else {
         printf("[OK] IO_OpenDevice\n");
+
+        
+        ret = IO_ReadDevice(dev, 0, buf, 32);
+        printf("[OK] IO_ReadDevice %d\n", ret);
+
+        ret = IO_WriteDevice(dev, 0, buf, 32);
+        printf("[OK] IO_WriteDevice %d\n", ret);
+
+        IO_CloseDevice(dev);
     }
 
-    ret = IO_ReadDevice(dev, 0, buf, 32);
-    printf("[OK] IO_ReadDevice %d\n", ret);
-
-    ret = IO_WriteDevice(dev, 0, buf, 32);
-    printf("[OK] IO_WriteDevice %d\n", ret);
-
-    IO_CloseDevice(dev);
-
-    IO_DeviceType *dev1, *dev2;
+    IO_DeviceType *dev1 = NULL, *dev2 = NULL;
     if (IO_OpenDevice("ramdisk0", 0, &dev1)) {
         printf("[BAD] IO_OpenDevice\n");
+        return -1;
     } else {
         printf("[OK] IO_OpenDevice\n");
     }
     if (IO_OpenDevice("ramdisk0", 0, &dev2)) {
         printf("[BAD] IO_OpenDevice\n");
+        return -1;
     } else {
         printf("[OK] IO_OpenDevice\n");
     }
-    ret = IO_CloseDevice(dev2);
-    printf("IO_CloseDevice: %d\n", ret);
-    
-    ret = IO_CloseDevice(dev1);
-    printf("IO_CloseDevice: %d\n", ret);
+    if (dev2) {
+        ret = IO_CloseDevice(dev2);
+        printf("IO_CloseDevice: %d\n", ret);
+    }
 
-    ret = IO_CloseDevice(dev1);
-    printf("IO_CloseDevice: %d\n", ret);
+    if (dev1) {
+        ret = IO_CloseDevice(dev1);
+        printf("IO_CloseDevice: %d\n", ret);
+
+        ret = IO_CloseDevice(dev1);
+        printf("IO_CloseDevice: %d\n", ret);
+
+    }
 
 #if 0
     if (IO_OpenDevice("nand0", 0, &dev)) {

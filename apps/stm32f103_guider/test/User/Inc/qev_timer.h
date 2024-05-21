@@ -1,0 +1,1 @@
+extern long ev_get_timer(void);

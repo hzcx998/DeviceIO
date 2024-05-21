@@ -1,0 +1,1 @@
+openocd.exe -f openocd.cfg

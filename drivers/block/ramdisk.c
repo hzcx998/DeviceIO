@@ -123,10 +123,16 @@ static int ProbeDevice(struct IO_Driver *driver, IO_DeviceNodeType *node)
     IO_AttachDevice(ramDev, driver);
 
     struct RamdiskExt *ext = (struct RamdiskExt *)ramDev->extension;
-    ext->ram = IO_Malloc(RAMDISK_SIZE);
-    memset(ext->ram, 0, RAMDISK_SIZE);
-    ext->ramSize = RAMDISK_SIZE;
-    ext->blockSize = 512;
+
+    unsigned long diskSize = IO_GetNodeArraHex(node, "reg", 0, RAMDISK_SIZE);
+    printf("ramdisk: size=%p\n", diskSize);
+
+    ext->ram = IO_Malloc(diskSize);
+    if (ext->ram) {
+        memset(ext->ram, 0, diskSize);
+        ext->ramSize = diskSize;
+        ext->blockSize = 512;
+    }
 
     printf("create ramdisk0 device at %p size %d\n", ext->ram, ext->ramSize);
 

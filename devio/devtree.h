@@ -2,6 +2,8 @@
 #define _DEVICE_TREE_H
 
 #include <cJSON.h>
+#include <string.h>
+#include <stdlib.h>
 
 typedef struct IO_Compatible {
     char *name;
@@ -365,5 +367,12 @@ static inline unsigned long IO_GetNodeArrayU64(IO_DeviceNodeType *node, char *na
     }
     return defaultValue;
 }
+
+void IO_InitDeviceTree(void);
+int IO_ParseDeviceTree(char *buf);
+/**
+ * 在支持文件的系统上加载设备树
+ */
+char *IO_LoadDeviceTree(char *filename);
 
 #endif

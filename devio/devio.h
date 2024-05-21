@@ -8,6 +8,11 @@
 
 #include <devtree.h>
 
+#ifdef STM32F10X_HD
+// stm32 only
+#include <printf.h>
+#endif
+
 #define IO_API
 
 struct IO_Driver;
@@ -86,17 +91,8 @@ static inline int IO_ListEmpty(const IO_ListType *head)
             &pos->member != (head);                             \
             pos = IO_ListNextEntry(pos, member))
 
-static inline void *IO_Malloc(size_t size)
-{
-    void *ptr = malloc(size);
-    memset(ptr, 0, size);
-    return ptr;
-}
-
-static inline void IO_Free(void *ptr)
-{
-    free(ptr);
-}
+extern void *IO_Malloc(size_t size);
+extern void IO_Free(void *ptr);
 
 /**
  * 设备的配置信息，从配置文件读取
@@ -219,7 +215,8 @@ static inline IO_ReqType *IO_CreateReq(char stackSize)
 {
     IO_ReqType *req;
     unsigned long reqSize;
-    reqSize = IO_ReqSize(stackSize);
+    /* 至少分配1个栈大小 */
+    reqSize = IO_ReqSize(stackSize + 1);
     req = IO_Malloc(reqSize);
     if (req) {
         IO_INIT_REQ(req, reqSize, stackSize);
@@ -240,10 +237,7 @@ static inline void IO_FinishReq(IO_ReqType *req)
     req->flags |= IO_REQ_FINISHED;
 }
 
-static inline void IO_DumpReqStack(IO_StackType *req)
-{
-    printf("IO Req Stack: func: %d, device:%p\n", req->function, req->device);
-}
+extern void IO_DumpReqStack(IO_StackType *req);
 
 /**
  * 通用派发函数类型
@@ -391,30 +385,7 @@ static inline int IO_AttachDeviceToDeviceStack(IO_DeviceType *sourceDevice, IO_D
     return 0;
 }
 
-static inline int IO_DumpDeviceStack(IO_DeviceType *device)
-{
-    IO_DeviceType *nextDevice;
-    nextDevice = device->attachedDevice;
-
-    printf("device %s IO stack list: stack size:%d\n", device->name, device->stackSize);
-
-    /**
-     * 已经有挂载的设备了，找到一个没有挂载设备的设备。
-     */
-    while (nextDevice != NULL) {
-        printf("    device stack:%s\n", nextDevice->name);
-        /**
-         * 如果已经没有挂载设备了，就到达了最外层。
-         */
-        if (nextDevice->attachedDevice == NULL) {
-            break;
-        }
-
-        nextDevice = nextDevice->attachedDevice;
-    }
-
-    return 0;
-}
+extern int IO_DumpDeviceStack(IO_DeviceType *device);
 
 static inline int IO_GetDriverByName(char *name, IO_DriverType **driverAddress)
 {
@@ -802,19 +773,9 @@ static inline int IO_AttachModule(IO_ModuleType *module)
     return 0;
 }
 
-static inline void IO_CallModule(void)
-{
-    IO_ModuleType *module;
-    int i;
+extern void IO_CallModule(void);
 
-    for (i = IO_MODULE_HW_LOWER; i < IO_MODULE_LEVEL_MAX; i++) {
-        IO_ListForEachEntry(module, &ModuleListHead[i], systemList) {
-            printf("call mod:%s\n", module->name);
-            module->init();
-        }
-    }
-}
-
-void IO_InitSystem(void (*initModule)(void));
+int IO_InitSystem(void (*init)(void), char *devtree);
+void IO_InitHeap(char *addr, unsigned long len);
 
 #endif

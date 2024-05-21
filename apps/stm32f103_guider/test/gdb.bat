@@ -1,0 +1,1 @@
+gdb-multiarch.exe  -x .gdbinit .\build\windows\x64\release\xos.elf

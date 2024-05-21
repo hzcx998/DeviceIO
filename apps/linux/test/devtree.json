@@ -31,7 +31,7 @@
     {
         "compatible": "virt,ramdisk",
         "reg" : [
-            "0x800",
+            "0x100000",
             "0x200"
         ],
         "reg2" : [
