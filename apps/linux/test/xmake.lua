@@ -4,8 +4,15 @@ target("devio")
     top_dir = "../../../"
 
     -- [M] devio
-    add_files(top_dir .. "devio/*.c")
-    add_includedirs(top_dir .. "devio")
+    add_files(
+        top_dir .. "devio/*.c", 
+        top_dir .. "devio/tlsf/*.c"
+    )
+    
+    add_includedirs(
+        top_dir .. "devio",
+        top_dir .. "devio/tlsf"
+    )
 
     -- [M] drivers
     --      drivers/block/

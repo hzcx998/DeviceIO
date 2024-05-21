@@ -18,10 +18,10 @@ int main(int argc, char *argv[])
 {
     printf("hello, DeviceIO!\n");
 
-    char *buf = IO_LoadDeviceTree("devtree.json");
+    char *devtreebuf = IO_LoadDeviceTree("devtree.json");
     /* 初始化IO系统 */
-    IO_InitSystem(AttachAllModule, buf);
-    IO_Free(buf);
+    IO_InitSystem(AttachAllModule, devtreebuf);
+    IO_Free(devtreebuf);
 
     /**
      * 操作设备
