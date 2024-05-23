@@ -1,0 +1,40 @@
+{
+    "model": "Sipeed Longan Pi 3H",
+    "compatible": [
+        "sipeed,longan-pi-3h", "sipeed,longan-module-3h", "allwinner,sun50i-h618"
+    ],
+
+    "chosen": 
+    {
+        "stdout-path": "serial0:115200n8"
+    },
+    "uart0@5000000":
+    {
+
+        "compatible": "snps,dw-apb-uart",
+        "reg" : [
+            "0x05000000",
+            "0x400"
+        ],
+        "status": "disabled"
+    },
+    "uart1@5000400":
+    {
+        "compatible": "snps,dw-apb-uart",
+        "reg" : [
+            "0x05000400",
+            "0x400"
+        ],
+        "status": "disabled"
+    },
+    "ramdisk@0":
+    {
+        "compatible": "virt,ramdisk",
+        "reg" : [
+            "0x2000",
+            "0x200"
+        ],
+        "status": "enabled",
+        "EnableFaseIO" : true
+    }
+}

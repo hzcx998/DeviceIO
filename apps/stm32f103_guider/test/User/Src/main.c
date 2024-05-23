@@ -24,52 +24,28 @@ void AttachAllModule(void)
   IO_AttachModule(&IO_MODULE_NAME(Ramdisk));
 }
 
-static char *devtree_buf = "{\n\
-    \"model\": \"Sipeed Longan Pi 3H\",\n\
-    \"compatible\": [\n\
-        \"sipeed,longan-pi-3h\", \"sipeed,longan-module-3h\", \"allwinner,sun50i-h618\"\n\
-    ],\n\
-    \n\
-    \"chosen\": \n\
-    {\n\
-        \"stdout-path\": \"serial0:115200n8\"\n\
-    },\n\
-    \"uart0@5000000\":\n\
-    {\n\
-        \"compatible\": \"snps,dw-apb-uart\",\n\
-        \"reg\" : [\n\
-            \"0x05000000\",\n\
-            \"0x400\"\n\
-        ],\n\
-        \"status\": \"disabled\"\n\
-    },\n\
-    \"uart1@5000400\":\n\
-    {\n\
-        \"compatible\": \"snps,dw-apb-uart\",\n\
-        \"reg\" : [\n\
-            \"0x05000400\",\n\
-            \"0x400\"\n\
-        ],\n\
-        \"status\": \"disabled\"\n\
-    },\n\
-    \"ramdisk@0\":\n\
-    {\n\
-        \"compatible\": \"virt,ramdisk\",\n\
-        \"reg\" : [\n\
-            \"0x2000\",\n\
-            \"0x200\"\n\
-        ],\n\
-        \"status\": \"enabled\",\n\
-        \"EnableFaseIO\" : true\n\
-    }\n\
-}";
+char *GetLinkerDeviceTree(void)
+{
+    extern char __io_devtree_start[];
+    extern char __io_devtree_end[];
+
+    printf("json: start=%p, end=%p, size=%d\n", __io_devtree_start, __io_devtree_end,
+            __io_devtree_end - __io_devtree_start);
+    if (__io_devtree_end == __io_devtree_start) {
+		printf("no json device tree inside !\n");
+		return NULL;
+	}
+    printf("json devtree:\n%s\n", __io_devtree_start);
+    return __io_devtree_start;
+}
 
 int test_devio(void)
 {
   printf("hello, DeviceIO!\n");
-
+ 
+  char *linkerDevtree = GetLinkerDeviceTree();
   /* 初始化IO系统 */
-  IO_InitSystem(AttachAllModule, devtree_buf);
+  IO_InitSystem(AttachAllModule, linkerDevtree);
 
   /**
    * 操作设备

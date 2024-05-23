@@ -69,6 +69,10 @@ SECTIONS
         KEEP(*(.dtors))
         PROVIDE(__dtors_end__ = .);
 
+		PROVIDE(__io_devtree_start = .);
+		KEEP(*(.dtree))
+		PROVIDE(__io_devtree_end = .);
+
         . = ALIGN(4);
         /* This is used by the startup in order to initialize the .data secion */
         _edata = . ;

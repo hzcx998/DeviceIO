@@ -20,6 +20,7 @@ target("xos")
 
     -- 设置源文件位置
     add_files(
+        "./*.S",
         "./User/Src/*.c",
         top_dir .. "/boards/stm32f103/Libraries/CMSIS/*.c",
         top_dir .. "/boards/stm32f103/Libraries/FWLIB/src/*.c",
