@@ -1,3 +1,3 @@
 .section .dtree, "a"
 .incbin "devtree.json"
-eof: .byte '\0'
+eof: .byte 0

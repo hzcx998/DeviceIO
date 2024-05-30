@@ -69,6 +69,7 @@ SECTIONS
         KEEP(*(.dtors))
         PROVIDE(__dtors_end__ = .);
 
+        . = ALIGN(4);
 		PROVIDE(__io_devtree_start = .);
 		KEEP(*(.dtree))
 		PROVIDE(__io_devtree_end = .);
