@@ -36,7 +36,8 @@ target("xos")
     )
 
     add_files(
-        top_dir .. "/drivers/block/ramdisk.c"
+        top_dir .. "/drivers/block/ramdisk.c",
+        top_dir .. "/drivers/gpio/gpio_stm32f10x.c"
     )
 
     add_includedirs(
@@ -94,6 +95,9 @@ after_build(function(target)
     print("生成已完成!")
     print("********************储存空间占用情况*****************************")
     os.exec(dir .. "arm-none-eabi-size -Bd ./build/windows/x64/release/xos.elf")
+    print("****************************************************************")
+    print("********************readelf*****************************")
+    os.exec(dir .. "arm-none-eabi-readelf -h ./build/windows/x64/release/xos.elf")
     print("****************************************************************")
 end)
 

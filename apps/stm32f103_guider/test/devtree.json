@@ -8,25 +8,6 @@
     {
         "stdout-path": "serial0:115200n8"
     },
-    "uart0@5000000":
-    {
-
-        "compatible": "snps,dw-apb-uart",
-        "reg" : [
-            "0x05000000",
-            "0x400"
-        ],
-        "status": "disabled"
-    },
-    "uart1@5000400":
-    {
-        "compatible": "snps,dw-apb-uart",
-        "reg" : [
-            "0x05000400",
-            "0x400"
-        ],
-        "status": "disabled"
-    },
     "ramdisk@0":
     {
         "compatible": "virt,ramdisk",
@@ -36,5 +17,17 @@
         ],
         "status": "enabled",
         "EnableFaseIO" : true
-    }
+    },
+	"gpio-a@0x40010800": {
+        "compatible": "gpio-stm32f10x",
+		"gpio-base": "0x00",
+		"gpio-count": "0x10",
+		"interrupt-offset": "0x40"
+	},
+    "gpio-b@0x40010c00": {
+        "compatible": "gpio-stm32f10x",
+		"gpio-base": "0x10",
+		"gpio-count": "0x10",
+		"interrupt-offset": "0x50"
+	}
 }

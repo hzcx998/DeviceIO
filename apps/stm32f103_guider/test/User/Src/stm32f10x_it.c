@@ -137,7 +137,7 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-  Usart_SendString( DEBUG_USARTx,"!");
+  // Usart_SendString( DEBUG_USARTx,"!");
 }
 
 /**
