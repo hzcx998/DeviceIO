@@ -101,8 +101,10 @@ typedef struct IO_Config {
     char *name;
 } IO_ConfigType;
 
+#define IO_DEVICE_NAME_LEN 32
+
 typedef struct IO_Device {
-    char *name;
+    char name[IO_DEVICE_NAME_LEN];
     int reference;
     IO_ListType driverList;
     IO_ListType systemList;
@@ -261,7 +263,7 @@ typedef struct IO_DirectDispatch {
 } IO_DirectDispatchType;
 
 typedef struct IO_Driver {
-    char *name;
+    char name[IO_DEVICE_NAME_LEN];
     IO_ListType deviceHead;
     IO_ListType systemList;
     IO_DirectDispatchType directIO;
@@ -277,7 +279,7 @@ extern IO_ListType DeviceListHead;
 
 static inline void IO_InitDriver(IO_DriverType *driver, char *name)
 {
-    driver->name = name;
+    strcpy(driver->name, name);
     IO_InitList(&driver->deviceHead);
     IO_InitList(&driver->systemList);
     driver->extension = NULL;
@@ -303,7 +305,7 @@ static inline int IO_AttachDriver(IO_DriverType *driver)
 
 static inline void IO_InitDevice(IO_DeviceType *device, char *name, unsigned long extensionSize)
 {
-    device->name = name;
+    strcpy(device->name, name);
     IO_InitList(&device->driverList);
     IO_InitList(&device->systemList);
 
@@ -733,6 +735,9 @@ IO_API static inline int IO_CloseDevice(IO_DeviceType *device)
 
     return ret;
 }
+
+void IO_ListDrivers(void);
+void IO_ListDevices(void);
 
 #define IO_MODULE_HW_LOWER  0
 #define IO_MODULE_HW        1

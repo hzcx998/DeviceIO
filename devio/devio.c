@@ -91,6 +91,26 @@ int IO_DumpDeviceStack(IO_DeviceType *device)
     return 0;
 }
 
+void IO_ListDrivers(void)
+{
+    IO_DriverType *driver;
+    printf("==== IO System Drivers ====\n");
+    IO_ListForEachEntry(driver, &DriverListHead, systemList) {
+        printf("    - %s\n", driver->name);
+    }
+    printf("---------------------------\n");
+}
+
+void IO_ListDevices(void)
+{
+    IO_DeviceType *device;
+    printf("==== IO System Devices ====\n");
+    IO_ListForEachEntry(device, &DeviceListHead, systemList) {
+        printf("    - %s, reference: %d, [%s]\n", device->name, device->reference, device->driver->name);
+    }
+    printf("---------------------------\n");
+}
+
 void IO_CallModule(void)
 {
     IO_ModuleType *module;
