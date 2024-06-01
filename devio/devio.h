@@ -103,11 +103,19 @@ typedef struct IO_Config {
 
 #define IO_DEVICE_NAME_LEN 32
 
+typedef enum IO_DeviceClase {
+    IO_DEVICE_CLASS_UNKNOWN = 0,
+    IO_DEVICE_CLASS_GPIO,
+    IO_DEVICE_CLASS_BLOCK,
+    IO_DEVICE_CLASS_MAX,
+} IO_DeviceClaseType;
+
 typedef struct IO_Device {
     char name[IO_DEVICE_NAME_LEN];
     int reference;
     IO_ListType driverList;
     IO_ListType systemList;
+    IO_DeviceClaseType class;
     struct IO_Driver *driver;
     /**
      * 挂载的设备，用于多层请求转发
@@ -303,7 +311,7 @@ static inline int IO_AttachDriver(IO_DriverType *driver)
     return 0;
 }
 
-static inline void IO_InitDevice(IO_DeviceType *device, char *name, unsigned long extensionSize)
+static inline void IO_InitDevice(IO_DeviceType *device, char *name, unsigned long extensionSize, IO_DeviceClaseType class)
 {
     strcpy(device->name, name);
     IO_InitList(&device->driverList);
@@ -327,17 +335,27 @@ static inline void IO_InitDevice(IO_DeviceType *device, char *name, unsigned lon
     device->attachedDevice = NULL;
 
     device->reference = 0;
+    device->class = class;
 }
 
-static inline IO_DeviceType *IO_CreateDevice(char *name, unsigned long extensionSize)
+static inline IO_DeviceType *IO_CreateDevice(char *name, unsigned long extensionSize, IO_DeviceClaseType class)
 {
     IO_DeviceType *device;
     device = IO_Malloc(sizeof(IO_DeviceType) + extensionSize);
     if (!device) {
         return device;
     }
-    IO_InitDevice(device, name, extensionSize);
+    IO_InitDevice(device, name, extensionSize, class);
     return device;
+}
+
+static inline int IO_DestroyDevice(IO_DeviceType *device)
+{
+    if (!device) {
+        return -1;
+    }
+    IO_Free(device);
+    return 0;
 }
 
 static inline int IO_AttachDevice(IO_DeviceType *device, IO_DriverType *driver)
@@ -439,6 +457,13 @@ static inline int IO_GetDeviceByName(char *name, IO_DeviceType **deviceAddress)
     }
     return err;
 }
+
+#define IO_ForeachDevice(dev) \
+    IO_ListForEachEntry(dev, &DeviceListHead, systemList)
+
+#define IO_ForeachDeviceClass(dev, devClass) \
+    IO_ForeachDevice(dev) \
+        if ((dev)->class == (devClass))
 
 static inline int IO_CallDriver(IO_DeviceType *device, IO_ReqType *req)
 {

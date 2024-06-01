@@ -119,7 +119,7 @@ static int ProbeDevice(struct IO_Driver *driver, IO_DeviceNodeType *node)
     printf("get reg[0]: %p\n", IO_GetNodeArrayU64(node, "reg2", 0, 0x00));
     printf("get reg[1]: %p\n", IO_GetNodeArrayU64(node, "reg2", 1, 0x00));
 
-    IO_DeviceType *ramDev = IO_CreateDevice("ramdisk0", sizeof(struct RamdiskExt));
+    IO_DeviceType *ramDev = IO_CreateDevice("ramdisk0", sizeof(struct RamdiskExt), IO_DEVICE_CLASS_BLOCK);
     IO_AttachDevice(ramDev, driver);
 
     struct RamdiskExt *ext = (struct RamdiskExt *)ramDev->extension;

@@ -8,6 +8,8 @@
 
 #include <devio.h>
 
+#include <iokit/gpio.h>
+
 IO_IMPORT_MODULE(Ramdisk);
 IO_IMPORT_MODULE(STM32F10X_GPIO);
 
@@ -98,6 +100,7 @@ int test_devio(void)
   /* enable clock */
   RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB, ENABLE);
 
+#if 0
   /* open gpio device */
   if (IO_OpenDevice("gpio-b", 0, &dev)) {
       printf("[BAD] open gpio-b\n");
@@ -125,6 +128,37 @@ int test_devio(void)
       
       IO_CloseDevice(dev);
   }
+#else
+
+#define RED_LED_GPIO (16 + 5)
+#define GREEN_LED_GPIO (16 + 0)
+#define BLUE_LED_GPIO (16 + 1)
+
+    GPIO_SetMode(RED_LED_GPIO, GPIO_MODE_OUTPUT_PP | (GPIO_RATE_SLOW << 16));
+    GPIO_SetMode(GREEN_LED_GPIO, GPIO_MODE_OUTPUT_PP | (GPIO_RATE_FAST << 16));
+    GPIO_SetMode(BLUE_LED_GPIO, GPIO_MODE_OUTPUT_PP | (GPIO_RATE_FAST << 16));
+
+    while(1) {
+        SysTick_Delay_Ms(1000);
+
+        GPIO_SetValue(RED_LED_GPIO, GPIO_LOW);
+        GPIO_SetValue(GREEN_LED_GPIO, GPIO_HIGH);
+        GPIO_SetValue(BLUE_LED_GPIO, GPIO_HIGH);
+
+        SysTick_Delay_Ms(1000);
+
+        GPIO_SetValue(RED_LED_GPIO, GPIO_HIGH);
+        GPIO_SetValue(GREEN_LED_GPIO, GPIO_LOW);
+        GPIO_SetValue(BLUE_LED_GPIO, GPIO_HIGH);
+
+        SysTick_Delay_Ms(1000);
+
+        GPIO_SetValue(RED_LED_GPIO, GPIO_HIGH);
+        GPIO_SetValue(GREEN_LED_GPIO, GPIO_HIGH);
+        GPIO_SetValue(BLUE_LED_GPIO, GPIO_LOW);
+    }
+      
+#endif
 
   if (IO_OpenDevice("ramdisk0", 0, &dev)) {
       printf("[BAD] IO_OpenDevice\n");

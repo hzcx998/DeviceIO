@@ -35,14 +35,22 @@ target("xos")
         top_dir .. "/devio/tlsf/*.c"
     )
 
+    -- ramdisk
     add_files(
-        top_dir .. "/drivers/block/ramdisk.c",
-        top_dir .. "/drivers/gpio/gpio_stm32f10x.c"
+        top_dir .. "/drivers/block/ramdisk.c"
+    )
+
+    --gpio
+    add_files(
+        top_dir .. "/drivers/gpio/gpio_stm32f10x_chip.c",
+        top_dir .. "/libdrv/gpio/*.c",
+        top_dir .. "/iokit/gpio/*.c"
     )
 
     add_includedirs(
         top_dir .. "/devio/",
-        top_dir .. "/devio/tlsf"
+        top_dir .. "/devio/tlsf",
+        top_dir .. "/include"
     )
 
     -- 设置头文件搜索路径
